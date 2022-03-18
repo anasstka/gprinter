@@ -15,14 +15,14 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import android.util.ArrayMap;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Size;
 import android.view.View;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.gprinter.aidl.GpService;
 import com.gprinter.command.EscCommand;
@@ -30,7 +30,6 @@ import com.gprinter.command.LabelCommand;
 import com.gprinter.io.GpDevice;
 import com.gprinter.io.PortParameters;
 import com.gprinter.service.GpPrintService;
-import com.yf.btp.ui.BTDialog;
 import com.yf.btp.utils.ArrayUtils;
 import com.yf.btp.utils.BitmapUtils;
 
@@ -60,15 +59,13 @@ public class PrinterService extends Service implements IPrinterFeatures {
 
     private static int BT_DEV_ID_GEN = 0;
 
-    private BTDialog mBTDialog;
-
     private ArrayMap<String, Integer> macIdMap = new ArrayMap<>();
 
     private List<PrinterConnectStatCallback> mPrinterConnectStatCallbacks = new ArrayList<>();
 
     private PickedPrinterCallback mPickedPrinterCallback;
 
-    private int mPickPrinter = -1; //但前选择的打印机
+    private int mPickPrinter = -1; // but the printer selected before
 
 
     public PickedPrinterCallback getPickedPrinterCallback() {
@@ -238,11 +235,6 @@ public class PrinterService extends Service implements IPrinterFeatures {
 
         mPickedPrinterCallback = null;
 
-        mPrinterConnectStatCallbacks.remove(mBTDialog);
-
-        if (mBTDialog != null && mBTDialog.isShowing())
-            mBTDialog.dismiss();
-
         unRegisterBroadcast();
 
         unbindService();
@@ -286,7 +278,7 @@ public class PrinterService extends Service implements IPrinterFeatures {
                 macIdMap.put(dev.getAddress(), devId);
 
                 if (0 == openPort(devId, dev.getAddress())) {
-                    Log.d("!!!", "Printer Connect");
+                    Log.d("printerConnect", "Printer Connect");
                 }
             }
 
@@ -306,7 +298,7 @@ public class PrinterService extends Service implements IPrinterFeatures {
     /**
      * isValid
      * <p>
-     * 返回true则当前以选择可用设备，返回false，则反之
+     * Return true to currently select an available device，return false, otherwise
      */
     @Override
     public boolean isValid() {
@@ -318,7 +310,7 @@ public class PrinterService extends Service implements IPrinterFeatures {
     /**
      * getSelectedDevName
      * <p>
-     * 返回当前选择的打印机设备的名称， 返回null则当前没有选择设备
+     * Returns the name of the currently selected printer device， Returns null if no device is currently selected
      */
     @Override
     public String getSelectedDevName() {
@@ -352,32 +344,31 @@ public class PrinterService extends Service implements IPrinterFeatures {
 
             isInitPrint = true;
 
-            tsc.addSize(75, 100); //设置标签尺寸，按照实际尺寸设置
+            tsc.addSize(75, 100); // Set the label size, set according to the actual size
 
-            tsc.addGap(0);           //设置标签间隙，按照实际尺寸设置，如果为无间隙纸则设置为0
+            tsc.addGap(0);           // Set the label gap, set according to the actual size, if it is no gap paper, set it to 0
 
-            tsc.addDirection(LabelCommand.DIRECTION.BACKWARD, LabelCommand.MIRROR.NORMAL);//设置打印方向
+            tsc.addDirection(LabelCommand.DIRECTION.BACKWARD, LabelCommand.MIRROR.NORMAL); // set print orientation
 
-            tsc.addReference(0, 0);//设置原点坐标
+            tsc.addReference(0, 0); // set origin coordinates
 
-            tsc.addTear(EscCommand.ENABLE.ON); //撕纸模式开启
+            tsc.addTear(EscCommand.ENABLE.ON); // tear off mode on
         }
 
-        tsc.addCls();// 清除打印缓冲区
-        //绘制简体中文
-//        tsc.addText(20, 20, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1, "Welcome to use Gprinter!");
-        //绘制图片
+        tsc.addCls(); // clear print buffer
+
+        // draw pictures
         tsc.addBitmap(0, 0, LabelCommand.BITMAP_MODE.OR, printerWidth, bm);
 
 //        tsc.addQRCode(250, 80, LabelCommand.EEC.LEVEL_L, 5, LabelCommand.ROTATION.ROTATION_0, " www.gprinter.com.cn");
-        //绘制一维条码
+        // Draw 1D barcode
 //        tsc.add1DBarcode(20, 250, LabelCommand.BARCODETYPE.CODE128, 100, LabelCommand.READABEL.EANBEL, LabelCommand.ROTATION.ROTATION_0, "Gprinter");
 
-        tsc.addPrint(1, 1); // 打印标签
+        tsc.addPrint(1, 1); // print labels
 
-        tsc.addSound(2, 100); //打印标签后 蜂鸣器响
+        tsc.addSound(2, 100); // buzzer sounds after printing label
 
-        Vector<Byte> datas = tsc.getCommand(); //发送数据
+        Vector<Byte> datas = tsc.getCommand(); // send data
         Byte[] Bytes = datas.toArray(new Byte[0]);
         byte[] bytes = ArrayUtils.toPrimitive(Bytes);
         String str = Base64.encodeToString(bytes, Base64.DEFAULT);
@@ -403,26 +394,26 @@ public class PrinterService extends Service implements IPrinterFeatures {
 
             isInitPrint = true;
 
-            tsc.addSize(size.getWidth(), size.getHeight()); //设置标签尺寸，按照实际尺寸设置
+            tsc.addSize(size.getWidth(), size.getHeight()); // Set the label size, set according to the actual size
 
-            tsc.addGap(2);           //设置标签间隙，按照实际尺寸设置，如果为无间隙纸则设置为0
+            tsc.addGap(2);           // Set the label gap, set according to the actual size, if it is no gap paper, set it to 0
 
-            tsc.addDirection(LabelCommand.DIRECTION.FORWARD, LabelCommand.MIRROR.NORMAL);//设置打印方向
+            tsc.addDirection(LabelCommand.DIRECTION.FORWARD, LabelCommand.MIRROR.NORMAL); // set print orientation
 
-            tsc.addReference(point.x, point.y);//设置原点坐标
+            tsc.addReference(point.x, point.y); // set origin coordinates
 
-            tsc.addTear(EscCommand.ENABLE.ON); //撕纸模式开启
+            tsc.addTear(EscCommand.ENABLE.ON); // tear off mode on
         }
 
-        tsc.addCls();// 清除打印缓冲区
-        //绘制图片
+        tsc.addCls(); // clear print buffer
+        // draw pictures
         tsc.addBitmap(0, 0, LabelCommand.BITMAP_MODE.OR, printWidth * 8, bm);
 
-        tsc.addPrint(1, 1); // 打印标签
+        tsc.addPrint(1, 1); // print labels
 
-        tsc.addSound(2, 100); //打印标签后 蜂鸣器响
+        tsc.addSound(2, 100); // buzzer sounds after printing label
 
-        Vector<Byte> datas = tsc.getCommand(); //发送数据
+        Vector<Byte> datas = tsc.getCommand(); // send data
         Byte[] Bytes = datas.toArray(new Byte[0]);
         byte[] bytes = ArrayUtils.toPrimitive(Bytes);
         String str = Base64.encodeToString(bytes, Base64.DEFAULT);
@@ -565,10 +556,9 @@ public class PrinterService extends Service implements IPrinterFeatures {
     }
 
     /**
-     * пределение, поддерживается ли Bluetooth, и включение Bluetooth
-     * После получения адаптера Bluetooth определение, поддерживается ли Bluetooth и включен ли Bluetooth.
-     * Если он не включен, пользователю необходимо включить Bluetooth：
-     * @return
+     * determine if Bluetooth is supported and enable Bluetooth
+     * After receiving the Bluetooth adapter, determine if Bluetooth is supported and if Bluetooth is enabled.
+     * If it is not enabled, the user needs to enable Bluetooth
      */
     public boolean checkBleDevice() {
         Log.i("!!!", "check");
@@ -580,7 +570,7 @@ public class PrinterService extends Service implements IPrinterFeatures {
                 return true;
             }
         } else {
-            Log.i("blueTooth", "Телефон не поддерживает Bluetooth");
+            Log.i("blueTooth", "Phone does not support Bluetooth");
         }
         return false;
     }
