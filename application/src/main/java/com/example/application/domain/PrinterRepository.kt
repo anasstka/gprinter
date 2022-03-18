@@ -14,7 +14,7 @@ import com.yf.btp.entity.Printer
 
 interface IPrinterRepository {
 
-    fun checkBluetooth()
+    fun checkBluetooth(): Boolean
 
     fun onConnect(context: Context): Boolean
 
@@ -65,11 +65,12 @@ class PrinterRepository : IPrinterRepository, ServiceConnection {
         }
     }
 
-    override fun checkBluetooth() {
+    override fun checkBluetooth(): Boolean {
         val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         if (!mBluetoothAdapter.isEnabled) {
             mBluetoothAdapter.enable()
         }
+        return mBluetoothAdapter.isEnabled
     }
 
     override fun onConnect(

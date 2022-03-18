@@ -32,7 +32,7 @@ class MainViewModel @Inject constructor(
     fun getLabelSize(): Size = settingsRepository.getLabelSize()
 
     fun checkBluetooth() {
-        printerRepository.checkBluetooth()
+        sendEvent(MainScreenUiEvent.ToggleBluetooth(printerRepository.checkBluetooth()))
     }
 
     fun onPrint(
@@ -50,10 +50,10 @@ class MainViewModel @Inject constructor(
         printerRepository.registerReceiver(
             context = context,
             stateOn = {
-                sendEvent(MainScreenUiEvent.TurnOnBluetooth(true))
+                sendEvent(MainScreenUiEvent.ToggleBluetooth(true))
             },
             stateOff = {
-                sendEvent(MainScreenUiEvent.TurnOnBluetooth(false))
+                sendEvent(MainScreenUiEvent.ToggleBluetooth(false))
             }
         )
         printerRepository.bindService(
@@ -86,7 +86,7 @@ class MainViewModel @Inject constructor(
                 is MainScreenUiEvent.ConnectPrinter -> {
                     setState(oldState.copy(isConnectPrinter = event.status))
                 }
-                is MainScreenUiEvent.TurnOnBluetooth -> {
+                is MainScreenUiEvent.ToggleBluetooth -> {
                     setState(oldState.copy(isEnabledBluetooth = event.status))
                 }
             }

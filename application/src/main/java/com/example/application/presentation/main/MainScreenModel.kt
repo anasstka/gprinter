@@ -9,7 +9,7 @@ import com.yf.btp.entity.Printer
 @Immutable
 sealed class MainScreenUiEvent : UiEvent {
     data class ConnectPrinter(val status: Boolean) : MainScreenUiEvent()
-    data class TurnOnBluetooth(val status: Boolean) : MainScreenUiEvent()
+    data class ToggleBluetooth(val status: Boolean) : MainScreenUiEvent()
 }
 
 @Immutable
