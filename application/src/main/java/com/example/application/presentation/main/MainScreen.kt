@@ -39,14 +39,6 @@ fun MainScreen(
     }
 
     DisposableEffect(key1 = lifecycle) {
-//        scope.launch(Dispatchers.Main) {
-//            viewModel.onStart(context)
-//            viewModel.checkBluetooth()
-//            if (state.isEnabledBluetooth) {
-//                delay(1000)
-//                viewModel.onConnect(context)
-//            }
-//        }
         onDispose {
             viewModel.onStop(context)
         }

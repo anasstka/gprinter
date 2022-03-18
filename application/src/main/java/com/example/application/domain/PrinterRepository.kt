@@ -24,7 +24,6 @@ interface IPrinterRepository {
 
     fun unbindService(context: Context)
 
-    //    fun registerReceiver(context: Context)
     fun registerReceiver(context: Context, stateOn: () -> Unit, stateOff: () -> Unit)
 
     fun unregisterReceiver(context: Context)
@@ -76,7 +75,6 @@ class PrinterRepository : IPrinterRepository, ServiceConnection {
     override fun onConnect(
         context: Context
     ): Boolean {
-        Log.i("!!!", "on connect")
         if (mPrinter == null) {
             if (mPrinterService != null) {
                 mPrinterService!!.setPickedPrinterCallback { dev: Printer ->

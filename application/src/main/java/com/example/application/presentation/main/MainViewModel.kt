@@ -33,7 +33,6 @@ class MainViewModel @Inject constructor(
 
     fun checkBluetooth() {
         printerRepository.checkBluetooth()
-//        sendEvent(MainScreenUiEvent.TurnOnBluetooth(status))
     }
 
     fun onPrint(
